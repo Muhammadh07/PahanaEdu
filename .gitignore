@@ -1,5 +1,5 @@
 java/
-DBConnection.java
+util/DBConnection.java
 
 target/
 !.mvn/wrapper/maven-wrapper.jar
