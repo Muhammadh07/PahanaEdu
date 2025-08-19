@@ -8,7 +8,7 @@ public class DBConnectionTest {
     public static void main(String[] args) {
         try {
             // Get connection
-            Connection conn = com.pahana.util.DBConnection.getInstance().getConnection();
+            Connection conn = com.pahanaedu.util.DBConnection.getInstance().getConnection();
             System.out.println("✅ Database connected successfully!");
 
             // Optional: run a simple query to test

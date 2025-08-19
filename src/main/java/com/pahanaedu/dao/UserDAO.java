@@ -9,27 +9,25 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UserDAO {
-    private static final String GET_USER_BY_USERNAME =
-            "SELECT id, username, password_hash, full_name, role FROM users WHERE username = ?";
+    public static boolean validateUser(String username, String password) {
+        boolean isValid = false;
+        String sql = "SELECT COUNT(*) FROM users WHERE username = ? AND password = ?";
 
-    public User findByUsername(String username) throws SQLException, ClassNotFoundException {
-        try (Connection conn = com.pahana.util.DBConnection.getInstance().getConnection();
-             PreparedStatement ps = conn.prepareStatement(GET_USER_BY_USERNAME)) {
+        try (Connection conn = com.pahanaedu.util.DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            ps.setString(1, username);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    User user = new User();
-                    user.setId(rs.getInt("id"));
-                    user.setUsername(rs.getString("username"));
-                    user.setPasswordHash(rs.getString("password_hash"));
-                    user.setFullName(rs.getString("full_name"));
-                    user.setRole(rs.getString("role"));
-                    return user;
-                } else {
-                    return null;
+            stmt.setString(1, username);
+            stmt.setString(2, password);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    isValid = true;
                 }
             }
+        } catch (SQLException e) {
+            System.err.println("Database connection or query error: " + e.getMessage());
+            e.printStackTrace();
         }
+        return isValid;
     }
 }
