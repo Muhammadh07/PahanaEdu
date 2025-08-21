@@ -102,7 +102,7 @@
     </div>
 
     <div class="flex items-center gap-3">
-      <a href="listCustomers" class="text-sm text-slate-600 hover:text-brand.gradientFrom inline-flex items-center gap-2">
+      <a href="customer-view.jsp" class="text-sm text-slate-600 hover:text-brand.gradientFrom inline-flex items-center gap-2">
         <i class="fas fa-arrow-left"></i> Back to list
       </a>
     </div>
@@ -149,7 +149,7 @@
 
     <!-- Right: Form -->
     <main class="p-6 lg:col-span-2">
-      <form id="editCustomerForm" action="updateCustomer" method="post" class="space-y-6" novalidate>
+      <form id="editCustomerForm" action="customerSuccess.jsp" method="post" class="space-y-6" novalidate>
         <input type="hidden" name="customer_id" value="<%= customer.getCustomerId() %>"/>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -199,7 +199,7 @@
         </div>
 
         <div class="flex items-center justify-between gap-4 pt-4 border-t">
-          <a href="listCustomers" class="px-4 py-2 text-sm rounded-lg text-slate-700 hover:text-white hover:bg-slate-700 transition flex items-center gap-2">
+          <a href="customer-view.jsp" class="px-4 py-2 text-sm rounded-lg text-slate-700 hover:text-white hover:bg-slate-700 transition flex items-center gap-2">
             <i class="fas fa-times"></i> Cancel
           </a>
 

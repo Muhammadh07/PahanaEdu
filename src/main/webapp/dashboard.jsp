@@ -147,12 +147,12 @@
       <div class="collapse" id="itemsMenu">
         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small ms-4">
           <li><a href="add-item.jsp" class="nav-link text-white"><i class="bi bi-plus-square"></i> Add Item</a></li>
-          <li><a href="item-list.jsp" class="nav-link text-white"><i class="bi bi-pencil"></i> Manage Items</a></li>
+          <li><a href="customer-list.jsp" class="nav-link text-white"><i class="bi bi-pencil"></i> Manage Items</a></li>
         </ul>
       </div>
     </li>
     <li>
-      <a href="view-customer-list.jsp" class="nav-link text-white d-flex align-items-center">
+      <a href="customer-view.jsp" class="nav-link text-white d-flex align-items-center">
         <i class="bi bi-person-badge"></i>
         <span class="ms-2">Display Account Details</span>
       </a>

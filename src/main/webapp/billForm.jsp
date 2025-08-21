@@ -13,13 +13,7 @@
 <html>
 <head>
   <title>Create Bill</title>
-  <style>
-    table { border-collapse: collapse; width: 80%; margin: 20px auto; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    button { margin: 5px; padding: 5px 10px; }
-    .modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; overflow:auto; background:rgba(0,0,0,0.4); }
-    .modal-content { background:#fff; margin:10% auto; padding:20px; border:1px solid #888; width:300px; }
-  </style>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
   <script>
     function addRow() {
       let table = document.getElementById("itemsTable").getElementsByTagName('tbody')[0];
@@ -98,11 +92,11 @@
     }
 
     function showCustomerModal() {
-      document.getElementById('customerModal').style.display = 'block';
+      document.getElementById('customerModal').classList.remove('hidden');
     }
 
     function closeCustomerModal() {
-      document.getElementById('customerModal').style.display = 'none';
+      document.getElementById('customerModal').classList.add('hidden');
     }
 
     function addCustomerAJAX() {
@@ -154,107 +148,106 @@
     }
   </script>
 </head>
-<body>
-<div style="text-align:center; margin-bottom:20px;">
-  <button type="button" onclick="window.location.href='dashboard.jsp'">Back to Dashboard</button>
-</div>
-<h2 align="center">Create New Bill</h2>
-<form action="addBill" method="post">
-  <table>
-    <tr>
-      <td>Customer:</td>
-      <td>
-        <select name="customerId" required>
-          <%
-            CustomerDAO customerDAO = new CustomerDAO();
-            List<Customer> customers = customerDAO.getAllCustomers();
-            for(Customer c : customers){
-          %>
-          <option value="<%= c.getCustomerId() %>"><%= c.getFullName() %></option>
-          <% } %>
-        </select>
-        <button type="button" onclick="showCustomerModal()">Add New Customer</button>
-      </td>
-    </tr>
-    <tr>
-      <td>User ID:</td>
-      <td><input type="number" name="userId" required/></td>
-    </tr>
-    <tr>
-      <td>Payment Method:</td>
-      <td>
-        <select name="paymentMethod" required>
+<body class="bg-gray-100 min-h-screen py-8">
+<div class="max-w-3xl mx-auto bg-white rounded-lg shadow p-6">
+  <div class="flex justify-between mb-6">
+    <button type="button" onclick="window.location.href='dashboard.jsp'" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">Back to Dashboard</button>
+    <button type="button" onclick="resetForm()" class="px-4 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200">Reset</button>
+  </div>
+  <h2 class="text-2xl font-bold text-center text-blue-700 mb-6">Create New Bill</h2>
+  <form action="addBill" method="post" class="space-y-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Customer</label>
+        <div class="flex gap-2">
+          <select name="customerId" required class="w-full px-3 py-2 border rounded">
+            <% CustomerDAO customerDAO = new CustomerDAO(); List<Customer> customers = customerDAO.getAllCustomers(); for(Customer c : customers){ %>
+            <option value="<%= c.getCustomerId() %>"><%= c.getFullName() %></option>
+            <% } %>
+          </select>
+          <button type="button" onclick="showCustomerModal()" class="px-3 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">Add</button>
+        </div>
+      </div>
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">User ID</label>
+        <input type="number" name="userId" required class="w-full px-3 py-2 border rounded"/>
+      </div>
+      <div>
+        <label class="block text-gray-700 font-medium mb-1">Payment Method</label>
+        <select name="paymentMethod" required class="w-full px-3 py-2 border rounded">
           <option value="Cash">Cash</option>
           <option value="Card">Card</option>
           <option value="Online">Online</option>
         </select>
-      </td>
-    </tr>
-  </table>
-
-  <h3 align="center">Bill Items</h3>
-  <table id="itemsTable">
-    <thead>
-    <tr>
-      <th>Item</th>
-      <th>Quantity</th>
-      <th>Unit Price</th>
-      <th>Total</th>
-      <th>Action</th>
-    </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  <div style="text-align: center;">
-    <button type="button" onclick="addRow()">+ Add Item</button>
-  </div>
-
-  <table align="center">
-    <tr>
-      <td>Total Amount:</td>
-      <td><input type="text" id="totalAmount" name="totalAmount" readonly/></td>
-    </tr>
-  </table>
-  <div style="text-align: center;">
-    <button type="submit">Save Bill</button>
-  </div>
-</form>
-
+      </div>
+    </div>
+    <div>
+      <h3 class="text-lg font-semibold text-blue-600 mb-2 text-center">Bill Items</h3>
+      <div class="overflow-x-auto">
+        <table id="itemsTable" class="min-w-full bg-white border border-gray-200 rounded-lg">
+          <thead class="bg-blue-600 text-white">
+          <tr>
+            <th class="py-2 px-4 border-b">Item</th>
+            <th class="py-2 px-4 border-b">Quantity</th>
+            <th class="py-2 px-4 border-b">Unit Price</th>
+            <th class="py-2 px-4 border-b">Total</th>
+            <th class="py-2 px-4 border-b">Action</th>
+          </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="flex justify-center mt-2">
+        <button type="button" onclick="addRow()" class="px-4 py-2 bg-green-100 text-green-700 rounded hover:bg-green-200">+ Add Item</button>
+      </div>
+    </div>
+    <div class="flex justify-end items-center gap-4">
+      <label class="text-gray-700 font-medium">Total Amount:</label>
+      <input type="text" id="totalAmount" name="totalAmount" readonly class="w-32 px-3 py-2 border rounded bg-gray-50"/>
+    </div>
+    <div class="flex justify-center">
+      <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-semibold">Save Bill</button>
+    </div>
+  </form>
+</div>
 <!-- Hidden item dropdown template -->
 <div id="itemTemplate" style="display:none;">
-  <select name="itemId">
-    <%
-      ItemDAO itemDAO = new ItemDAO();
-      List<Items> items = itemDAO.getAllItems();
-      for(Items i : items){
-    %>
+  <select name="itemId" class="w-full px-2 py-1 border rounded">
+    <% ItemDAO itemDAO = new ItemDAO(); List<Items> items = itemDAO.getAllItems(); for(Items i : items){ %>
     <option value="<%= i.getItem_id() %>"><%= i.getItem_name() %></option>
     <% } %>
   </select>
 </div>
-
 <!-- Customer Modal -->
-<div id="customerModal" class="modal">
-  <div class="modal-content">
-    <span style="float:right;cursor:pointer;" onclick="closeCustomerModal()">&times;</span>
-    <h3>Add New Customer</h3>
-    <label>Account Number:</label><br>
-    <input type="text" id="newCustomerAccount" required><br>
-    <label>Name:</label><br>
-    <input type="text" id="newCustomerName" required><br>
-    <label>Address:</label><br>
-    <input type="text" id="newCustomerAddress"><br>
-    <label>Contact:</label><br>
-    <input type="text" id="newCustomerContact"><br>
-    <label>Unit Consumed:</label><br>
-    <input type="number" id="newCustomerUnit" value="0"><br><br>
-    <button type="button" onclick="addCustomerAJAX()">Add Customer</button>
+<div id="customerModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 hidden">
+  <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm relative">
+    <button type="button" onclick="closeCustomerModal()" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl">&times;</button>
+    <h3 class="text-lg font-bold mb-4 text-blue-700">Add New Customer</h3>
+    <div class="space-y-2">
+      <label class="block text-gray-700">Account Number</label>
+      <input type="text" id="newCustomerAccount" required class="w-full px-3 py-2 border rounded">
+      <label class="block text-gray-700">Name</label>
+      <input type="text" id="newCustomerName" required class="w-full px-3 py-2 border rounded">
+      <label class="block text-gray-700">Address</label>
+      <input type="text" id="newCustomerAddress" class="w-full px-3 py-2 border rounded">
+      <label class="block text-gray-700">Contact</label>
+      <input type="text" id="newCustomerContact" class="w-full px-3 py-2 border rounded">
+      <label class="block text-gray-700">Unit Consumed</label>
+      <input type="number" id="newCustomerUnit" value="0" class="w-full px-3 py-2 border rounded">
+    </div>
+    <div class="mt-4 flex justify-end">
+      <button type="button" onclick="addCustomerAJAX()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Add Customer</button>
+    </div>
   </div>
 </div>
-
-<div style="text-align:center; margin-bottom:20px;">
-  <button type="button" onclick="window.location.href='dashboard.jsp'">Back to Dashboard</button>
-  <button type="button" onclick="resetForm()">Reset</button>
-</div>
+<script>
+  // Modal show/hide logic for Tailwind
+  function showCustomerModal() {
+    document.getElementById('customerModal').classList.remove('hidden');
+  }
+  function closeCustomerModal() {
+    document.getElementById('customerModal').classList.add('hidden');
+  }
+</script>
 </body>
 </html>
