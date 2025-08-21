@@ -6,200 +6,89 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-
-    <script>
-        function togglePassword() {
-        const passwordField = document.getElementById("password");
-        const eyeIcon = document.getElementById("eyeIcon");
-        if (passwordField.type === "password") {
-            passwordField.type = "text";
-            eyeIcon.innerHTML = "&#128065;"; // Eye open icon
-        } else {
-            passwordField.type = "password";
-            eyeIcon.innerHTML = "&#128064;"; // Eye closed icon
-        }
-        }
-    </script>
+  <title>User Registration</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Heroicons -->
+  <script src="https://unpkg.com/feather-icons"></script>
 </head>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-  }
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+<div class="bg-white shadow-xl rounded-2xl w-full max-w-md p-8">
+  <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">👤 Pahana Book Store User Registration</h2>
 
-  h2 {
-    text-align: center;
-    color: #333;
-  }
+  <form method="post" action="register" class="space-y-5">
 
-  form {
-    background-color: #fff;
-    padding: 30px 40px;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    width: 300px;
-  }
+    <!-- Username -->
+    <div>
+      <label for="username" class="block text-gray-700 font-medium">Username</label>
+      <div class="flex items-center border border-gray-300 rounded-lg px-3 py-2 mt-1 focus-within:ring-2 focus-within:ring-indigo-500">
+        <i data-feather="user" class="w-5 h-5 text-gray-500"></i>
+        <input type="text" id="username" name="username" required
+               class="ml-2 w-full outline-none border-none bg-transparent" placeholder="Enter username">
+      </div>
+    </div>
 
-  label {
-    display: block;
-    margin-bottom: 5px;
-    color: #555;
-  }
+    <!-- Password -->
+    <div>
+      <label for="password" class="block text-gray-700 font-medium">Password</label>
+      <div class="flex items-center border border-gray-300 rounded-lg px-3 py-2 mt-1 focus-within:ring-2 focus-within:ring-indigo-500">
+        <i data-feather="lock" class="w-5 h-5 text-gray-500"></i>
+        <input type="password" id="password" name="password" required
+               class="ml-2 w-full outline-none border-none bg-transparent" placeholder="Enter password">
+        <button type="button" onclick="togglePassword()" class="focus:outline-none">
+          <i id="eyeIcon" data-feather="eye" class="w-5 h-5 text-gray-500"></i>
+        </button>
+      </div>
+    </div>
 
-  input[type="text"],
-  input[type="password"] {
-    width: 100%;
-    padding: 8px 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box;
-  }
+    <!-- Full Name -->
+    <div>
+      <label for="fullName" class="block text-gray-700 font-medium">Full Name</label>
+      <div class="flex items-center border border-gray-300 rounded-lg px-3 py-2 mt-1 focus-within:ring-2 focus-within:ring-indigo-500">
+        <i data-feather="edit-2" class="w-5 h-5 text-gray-500"></i>
+        <input type="text" id="fullName" name="fullName" required
+               class="ml-2 w-full outline-none border-none bg-transparent" placeholder="Enter full name">
+      </div>
+    </div>
 
-  input[type="submit"] {
-    width: 100%;
-    padding: 10px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-  }
+    <!-- Submit Button -->
+    <div>
+      <button type="submit"
+              class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-lg transition duration-300">
+        Register
+      </button>
+    </div>
+  </form>
 
-  input[type="submit"]:hover {
-    background-color: #45a049;
-  }
-
-  button {
-    vertical-align: middle;
-    margin-left: 5px;
-  }
-
-  #eyeIcon {
-    font-size: 18px;
-  }
-
-  div[style*="color:green"], div[style*="color:red"] {
-    text-align: center;
-    margin-top: 10px;
-    font-weight: bold;
-  }
-  /* General body styles */
-  body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-  }
-
-  /* Form container */
-  form {
-    background-color: #fff;
-    padding: 30px 40px;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    width: 300px;
-  }
-
-  /* Headings */
-  h2 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 20px;
-  }
-
-  /* Labels */
-  label {
-    display: block;
-    margin-bottom: 5px;
-    color: #555;
-  }
-
-  /* Input fields */
-  input[type="text"],
-  input[type="password"] {
-    width: 100%;
-    padding: 8px 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box;
-  }
-
-  /* Submit button */
-  input[type="submit"] {
-    width: 100%;
-    padding: 10px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-  }
-
-  input[type="submit"]:hover {
-    background-color: #45a049;
-  }
-
-  /* Eye icon button */
-  button {
-    vertical-align: middle;
-    margin-left: 5px;
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-
-  #eyeIcon {
-    font-size: 18px;
-  }
-
-  /* Messages */
-  div[style*="color:green"], div[style*="color:red"] {
-    text-align: center;
-    margin-top: 10px;
-    font-weight: bold;
-  }
-
-
-</style>
-
-<body>
-<h2></h2>
-<form method="post" action="register">
-  <label for="username">Username:</label>
-  <input type="text" id="username" name="username" required><br>
-  <label for="password">Password:</label>
-  <input type="password" id="password" name="password" required>
-  <button type="button" onclick="togglePassword()" style="background:none;border:none;cursor:pointer;">
-    <span id="eyeIcon">&#128065;</span>
-  </button><br>
-
-  <label for="fullName">Full Name:</label>
-  <input type="text" id="fullName" name="fullName" required><br>
-  <input type="submit" value="Register">
-</form>
-<div style="color:green;">
-  <% if (request.getAttribute("message") != null) { %>
-  <%= request.getAttribute("message") %>
-  <% } %>
+  <!-- Messages -->
+  <div class="mt-4">
+    <% if (request.getAttribute("message") != null) { %>
+    <p class="text-green-600 text-sm font-medium text-center"><%= request.getAttribute("message") %></p>
+    <% } %>
+    <% if (request.getAttribute("error") != null) { %>
+    <p class="text-red-600 text-sm font-medium text-center"><%= request.getAttribute("error") %></p>
+    <% } %>
+  </div>
 </div>
-<div style="color:red;">
-  <% if (request.getAttribute("error") != null) { %>
-  <%= request.getAttribute("error") %>
-  <% } %>
-</div>
+
+<script>
+  function togglePassword() {
+    var pwd = document.getElementById('password');
+    var eye = document.getElementById('eyeIcon');
+    if (pwd.type === 'password') {
+      pwd.type = 'text';
+      eye.setAttribute("data-feather", "eye-off");
+    } else {
+      pwd.type = 'password';
+      eye.setAttribute("data-feather", "eye");
+    }
+    feather.replace(); // re-render icons
+  }
+  feather.replace();
+</script>
 </body>
 </html>
+
