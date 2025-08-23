@@ -1,196 +1,152 @@
 <%@ page import="com.pahanaedu.dao.CustomerDAO" %>
 <%@ page import="com.pahanaedu.dao.ItemDAO" %>
 <%@ page import="com.pahanaedu.model.Customer" %>
-<%@ page import="java.util.List" %><%--
-  Created by IntelliJ IDEA.
-  User: USER
-  Date: 21/08/2025
-  Time: 06:45
-  To change this template use File | Settings | File Templates.
---%>
+<%@ page import="com.pahanaedu.model.Items" %>
+<%@ page import="java.util.List" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
   <title>Create Bill</title>
   <style>
-    table { border-collapse: collapse; width: 80%; margin: 20px auto; }
+    body { font-family: Arial, sans-serif; background:#f5f5f5; margin:0; padding:0; }
+    h2, h3 { text-align:center; color:#333; }
+    table { border-collapse: collapse; width: 80%; margin: 20px auto; background:#fff; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    button { margin: 5px; padding: 5px 10px; }
-    .modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; overflow:auto; background:rgba(0,0,0,0.4); }
-    .modal-content { background:#fff; margin:10% auto; padding:20px; border:1px solid #888; width:300px; }
+    th { background:#007bff; color:white; }
+    button { margin: 5px; padding: 6px 12px; border:none; border-radius:4px; cursor:pointer; }
+    button:hover { opacity:0.9; }
+    .primary { background:#007bff; color:#fff; }
+    .danger { background:#dc3545; color:#fff; }
+    .success { background:#28a745; color:#fff; }
+    .modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%;
+      background:rgba(0,0,0,0.4); }
+    .modal-content { background:#fff; margin:10% auto; padding:20px; border-radius:8px; width:320px; }
+    .form-control { width:95%; padding:6px; margin-bottom:8px; border:1px solid #ccc; border-radius:4px; }
   </style>
   <script>
-    // Toast function for error/info messages
-    function toast(msg, type) {
-      let t = document.createElement('div');
-      t.textContent = msg;
-      t.style.position = 'fixed';
-      t.style.bottom = '30px';
-      t.style.left = '50%';
-      t.style.transform = 'translateX(-50%)';
-      t.style.background = type === 'error' ? '#f44336' : '#4caf50';
-      t.style.color = '#fff';
-      t.style.padding = '10px 20px';
-      t.style.borderRadius = '5px';
-      t.style.zIndex = 2000;
+    // Toast messages
+    function toast(msg, type="info") {
+      let t=document.createElement('div');
+      t.textContent=msg;
+      t.style.position='fixed';
+      t.style.bottom='20px';t.style.left='50%';
+      t.style.transform='translateX(-50%)';
+      t.style.background=type==='error'?'#dc3545':'#28a745';
+      t.style.color='#fff';t.style.padding='10px 20px';
+      t.style.borderRadius='5px';t.style.zIndex=2000;
       document.body.appendChild(t);
-      setTimeout(() => { t.remove(); }, 2500);
+      setTimeout(()=>t.remove(),2500);
     }
+
     function addRow() {
-      let table = document.getElementById("itemsTable").getElementsByTagName('tbody')[0];
-      let row = table.insertRow();
+      let tbody=document.getElementById("itemsTable").getElementsByTagName('tbody')[0];
+      let row=tbody.insertRow();
 
-      let itemCell = row.insertCell(0);
-      let qtyCell = row.insertCell(1);
-      let priceCell = row.insertCell(2);
-      let totalCell = row.insertCell(3);
-      let actionCell = row.insertCell(4);
+      row.innerHTML=`
+        <td>${document.getElementById("itemTemplate").innerHTML}</td>
+        <td><input type='number' name='quantity[]' value='1' min='1' oninput='updateRowTotal(this)' class='form-control'/></td>
+        <td><input type='number' name='unitPrice[]' value='0' step='0.01' readonly class='form-control'/></td>
+        <td><input type='text' name='rowTotal[]' value='0' readonly class='form-control'/></td>
+        <td><button type='button' class='danger' onclick='removeRow(this)'>Remove</button></td>
+      `;
 
-      itemCell.innerHTML = document.getElementById("itemTemplate").innerHTML;
-      qtyCell.innerHTML = "<input type='number' name='quantity' value='1' min='1' oninput='updateRowTotal(this)'/>";
-      priceCell.innerHTML = "<input type='number' name='unitPrice' value='0' step='0.01' readonly/>";
-      totalCell.innerHTML = "<input type='text' name='rowTotal' value='0' readonly/>";
-      actionCell.innerHTML = "<button type='button' onclick='removeRow(this)'>Remove</button>";
-
-      // Add event listener for item selection
-      let itemSelect = itemCell.querySelector("select[name='itemId']");
-      itemSelect.addEventListener('change', function() {
-        enforceStock(itemSelect);
-        fetchUnitPriceAndUpdateRow(itemSelect);
-      });
-      // Enforce stock and trigger price fetch for initial selection
+      let itemSelect=row.querySelector("select[name='itemId[]']");
+      itemSelect.addEventListener('change',()=>{ enforceStock(itemSelect); fetchUnitPrice(itemSelect); });
       enforceStock(itemSelect);
-      fetchUnitPriceAndUpdateRow(itemSelect);
+      fetchUnitPrice(itemSelect);
     }
 
-    function fetchUnitPriceAndUpdateRow(itemSelect) {
-      let row = itemSelect.parentNode.parentNode;
-      let itemId = itemSelect.value;
-      let priceInput = row.querySelector("input[name='unitPrice']");
-      if (!itemId) {
-        priceInput.value = 0;
-        updateRowTotal(priceInput);
-        return;
-      }
-      // AJAX request to get price
-      var xhr = new XMLHttpRequest();
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          try {
-            var resp = JSON.parse(xhr.responseText);
-            priceInput.value = resp.price;
+    function fetchUnitPrice(select){
+      let row=select.closest("tr");
+      let itemId=select.value;
+      let priceInput=row.querySelector("input[name='unitPrice[]']");
+      if(!itemId){ priceInput.value=0; updateRowTotal(priceInput); return; }
+      let xhr=new XMLHttpRequest();
+      xhr.onreadystatechange=function(){
+        if(xhr.readyState===4 && xhr.status===200){
+          try{
+            let resp=JSON.parse(xhr.responseText);
+            priceInput.value=resp.price;
             updateRowTotal(priceInput);
-          } catch (e) {
-            priceInput.value = 0;
-            updateRowTotal(priceInput);
-          }
+          }catch(e){ priceInput.value=0; updateRowTotal(priceInput); }
         }
       };
-      xhr.open('GET', 'getItemPrice?itemId=' + encodeURIComponent(itemId), true);
+      xhr.open('GET','getItemPrice?itemId='+encodeURIComponent(itemId),true);
       xhr.send();
     }
 
-    function removeRow(btn) {
-      let row = btn.parentNode.parentNode;
+    function updateRowTotal(input){
+      let row=input.closest("tr");
+      let qty=parseFloat(row.querySelector("input[name='quantity[]']").value||0);
+      let price=parseFloat(row.querySelector("input[name='unitPrice[]']").value||0);
+      row.querySelector("input[name='rowTotal[]']").value=(qty*price).toFixed(2);
+      updateTotal();
+    }
+
+    function updateTotal(){
+      let sum=0;
+      document.querySelectorAll("input[name='rowTotal[]']").forEach(el=>{
+        sum+=parseFloat(el.value||0);
+      });
+      document.getElementById("totalAmount").value=sum.toFixed(2);
+    }
+
+    function removeRow(btn){
+      let row=btn.closest("tr");
       row.parentNode.removeChild(row);
       updateTotal();
     }
 
-    function updateRowTotal(input) {
-      let row = input.parentNode.parentNode;
-      let qty = row.querySelector("input[name='quantity']").value;
-      let price = row.querySelector("input[name='unitPrice']").value;
-      let total = qty * price;
-      row.querySelector("input[name='rowTotal']").value = total.toFixed(2);
-      updateTotal();
+    function resetForm(){
+      document.querySelector("form").reset();
+      let tbody=document.getElementById("itemsTable").getElementsByTagName('tbody')[0];
+      tbody.innerHTML="";
+      addRow(); updateTotal();
     }
 
-    function updateTotal() {
-      let totals = document.getElementsByName("rowTotal");
-      let sum = 0;
-      for (let i = 0; i < totals.length; i++) {
-        sum += parseFloat(totals[i].value || 0);
-      }
-      document.getElementById("totalAmount").value = sum.toFixed(2);
-    }
+    function showCustomerModal(){ document.getElementById('customerModal').style.display='block'; }
+    function closeCustomerModal(){ document.getElementById('customerModal').style.display='none'; }
 
-    function showCustomerModal() {
-      document.getElementById('customerModal').style.display = 'block';
-    }
-
-    function closeCustomerModal() {
-      document.getElementById('customerModal').style.display = 'none';
-    }
-
-    function addCustomerAJAX() {
-      var name = document.getElementById('newCustomerName').value;
-      var contact = document.getElementById('newCustomerContact').value;
-      var account = document.getElementById('newCustomerAccount').value;
-      var address = document.getElementById('newCustomerAddress').value;
-      var unit = document.getElementById('newCustomerUnit').value;
-      if (!name || !account) { alert('Name and Account Number are required'); return; }
-      var xhr = new XMLHttpRequest();
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          try {
-            var resp = JSON.parse(xhr.responseText);
-            if (resp.success) {
-              var select = document.getElementsByName('customerId')[0];
-              var opt = document.createElement('option');
-              opt.value = resp.id;
-              opt.text = resp.name;
-              select.appendChild(opt);
-              select.value = resp.id;
+    function addCustomerAJAX(){
+      let name=document.getElementById('newCustomerName').value;
+      let account=document.getElementById('newCustomerAccount').value;
+      if(!name||!account){ toast("Name & Account required","error"); return; }
+      let xhr=new XMLHttpRequest();
+      xhr.onreadystatechange=function(){
+        if(xhr.readyState===4 && xhr.status===200){
+          try{
+            let resp=JSON.parse(xhr.responseText);
+            if(resp.success){
+              let select=document.querySelector("select[name='customerId']");
+              let opt=document.createElement("option");
+              opt.value=resp.id; opt.text=resp.name;
+              select.appendChild(opt); select.value=resp.id;
               closeCustomerModal();
-            } else {
-              alert('Failed to add customer');
-            }
-          } catch (e) { alert('Error adding customer'); }
+              toast("Customer added successfully","success");
+            }else toast("Failed to add","error");
+          }catch(e){ toast("Error adding customer","error"); }
         }
       };
-      xhr.open('POST', 'AddCustomerServlet', true);
-      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-      xhr.send('name=' + encodeURIComponent(name) + '&contact=' + encodeURIComponent(contact) + '&account=' + encodeURIComponent(account) + '&address=' + encodeURIComponent(address) + '&unit=' + encodeURIComponent(unit));
+      xhr.open('POST','AddCustomerServlet',true);
+      xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+      xhr.send('name='+encodeURIComponent(name)+'&account='+encodeURIComponent(account));
     }
 
-    function resetForm() {
-      let table = document.getElementById("itemsTable").getElementsByTagName('tbody')[0];
-      // Remove all rows except the first
-      while (table.rows.length > 1) {
-        table.deleteRow(1);
-      }
-      // Reset first row inputs
-      let firstRow = table.rows[0];
-      if (firstRow) {
-        firstRow.querySelector("select[name='itemId']").selectedIndex = 0;
-        firstRow.querySelector("input[name='quantity']").value = 1;
-        firstRow.querySelector("input[name='unitPrice']").value = 0;
-        firstRow.querySelector("input[name='rowTotal']").value = 0;
-      }
-      updateTotal();
-    }
-
-    // Hook to prevent selecting disabled (safety for some browsers) and enforce stock when changing existing rows
     function enforceStock(select){
-      const opt = select.selectedOptions[0];
-      if(!opt) return;
-      const stock = parseInt(opt.getAttribute('data-stock')||'0');
-      if(stock===0){ toast('Item out of stock','error'); select.value=''; }
+      let opt=select.selectedOptions[0]; if(!opt) return;
+      let stock=parseInt(opt.dataset.stock||'0');
+      if(stock===0){ toast("Item out of stock","error"); select.value=""; }
     }
-    // Update existing rows after page load (if any pre-rendered)
-    window.addEventListener('DOMContentLoaded',()=>{
-      // Add initial row if table is empty
-      let tbody = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
-      if (tbody.rows.length === 0) addRow();
-      document.querySelectorAll('select[name=itemId]').forEach(s=>{s.addEventListener('change',()=>enforceStock(s)); enforceStock(s);});
-    });
+
+    window.addEventListener('DOMContentLoaded',()=>{ addRow(); });
   </script>
 </head>
 <body>
-<div style="text-align:center; margin-bottom:20px;">
-  <button type="button" onclick="window.location.href='dashboard.jsp'">Back to Dashboard</button>
+<div style="text-align:center;margin:20px;">
+  <button class="primary" onclick="window.location.href='dashboard.jsp'">Back to Dashboard</button>
 </div>
-<h2 align="center">Create New Bill</h2>
+
+<h2>Create New Bill</h2>
 <form action="addBill" method="post">
   <table>
     <tr>
@@ -198,24 +154,22 @@
       <td>
         <select name="customerId" required>
           <%
-            CustomerDAO customerDAO = new CustomerDAO();
-            List<Customer> customers = customerDAO.getAllCustomers();
-            for(Customer c : customers){
-          %>
-          <option value="<%= c.getCustomerId() %>"><%= c.getFullName() %></option>
+            CustomerDAO cdao=new CustomerDAO();
+            for(Customer c: cdao.getAllCustomers()){ %>
+          <option value="<%=c.getCustomerId()%>"><%=c.getFullName()%></option>
           <% } %>
         </select>
-        <button type="button" onclick="showCustomerModal()">Add New Customer</button>
+        <button type="button" class="success" onclick="showCustomerModal()">+ Add New Customer</button>
       </td>
     </tr>
     <tr>
       <td>User ID:</td>
-      <td><input type="number" name="userId" required/></td>
+      <td><input type="number" name="userId" required class="form-control"/></td>
     </tr>
     <tr>
       <td>Payment Method:</td>
       <td>
-        <select name="paymentMethod" required>
+        <select name="paymentMethod" required class="form-control">
           <option value="Cash">Cash</option>
           <option value="Card">Card</option>
           <option value="Online">Online</option>
@@ -224,45 +178,41 @@
     </tr>
   </table>
 
-  <h3 align="center">Bill Items</h3>
+  <h3>Bill Items</h3>
   <table id="itemsTable">
     <thead>
-    <tr>
-      <th>Item</th>
-      <th>Quantity</th>
-      <th>Unit Price</th>
-      <th>Total</th>
-      <th>Action</th>
-    </tr>
+    <tr><th>Item</th><th>Quantity</th><th>Unit Price</th><th>Total</th><th>Action</th></tr>
     </thead>
     <tbody></tbody>
   </table>
-  <div style="text-align: center;">
-    <button type="button" onclick="addRow()">+ Add Item</button>
+  <div style="text-align:center;">
+    <button type="button" class="primary" onclick="addRow()">+ Add Item</button>
   </div>
 
   <table align="center">
     <tr>
-      <td>Total Amount:</td>
-      <td><input type="text" id="totalAmount" name="totalAmount" readonly/></td>
+      <td><b>Total Amount:</b></td>
+      <td><input type="text" id="totalAmount" name="totalAmount" readonly class="form-control"/></td>
     </tr>
   </table>
-  <div style="text-align: center;">
-    <button type="submit">Save Bill</button>
+  <div style="text-align:center;margin:15px;">
+    <button type="submit" class="success">Save Bill</button>
+    <button type="button" class="danger" onclick="resetForm()">Reset</button>
   </div>
 </form>
 
 <!-- Hidden item dropdown template -->
 <div id="itemTemplate" style="display:none;">
-  <select name="itemId" class="border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+  <select name="itemId[]" class="form-control">
     <%
-      ItemDAO itemDAO = new ItemDAO();
-      List<Item> items = itemDAO.getAllItem();
-      for(Item i : items){
-        int stk = i.getStock_quantity();
-        String label = i.getItem_name() + (stk==0 ? " (Out of Stock)" : "");
+      ItemDAO itemDAO=new ItemDAO();
+      for(Items i: itemDAO.getAllItems()){
+        int stk=i.getStock_quantity();
+        String label=i.getItem_name()+(stk==0?" (Out of Stock)":"");
     %>
-    <option value="<%= i.getItem_id() %>" data-stock="<%= stk %>" <%= stk==0?"disabled class='text-gray-400'": "" %>><%= label %></option>
+    <option value="<%=i.getItem_id()%>" data-stock="<%=stk%>" <%= (stk==0)?"disabled style='color:gray;'":"" %>>
+      <%=label%>
+    </option>
     <% } %>
   </select>
 </div>
@@ -271,29 +221,14 @@
 <div id="customerModal" class="modal">
   <div class="modal-content">
     <span style="float:right;cursor:pointer;" onclick="closeCustomerModal()">&times;</span>
-    <h3>Add New Customer</h3>
-    <label>Account Number:</label><br>
-    <input type="text" id="newCustomerAccount" required><br>
-    <label>Name:</label><br>
-    <input type="text" id="newCustomerName" required><br>
-    <label>Address:</label><br>
-    <input type="text" id="newCustomerAddress"><br>
-    <label>Contact:</label><br>
-    <input type="text" id="newCustomerContact"><br>
-    <label>Unit Consumed:</label><br>
-    <input type="number" id="newCustomerUnit" value="0"><br><br>
-    <button type="button" onclick="addCustomerAJAX()">Add Customer</button>
+    <h3>Add Customer</h3>
+    <input type="text" id="newCustomerAccount" placeholder="Account Number" class="form-control" required/>
+    <input type="text" id="newCustomerName" placeholder="Full Name" class="form-control" required/>
+    <input type="text" id="newCustomerAddress" placeholder="Address" class="form-control"/>
+    <input type="text" id="newCustomerContact" placeholder="Contact" class="form-control"/>
+    <input type="number" id="newCustomerUnit" placeholder="Unit Consumed" value="0" class="form-control"/>
+    <button type="button" class="success" onclick="addCustomerAJAX()">Save Customer</button>
   </div>
 </div>
-
-<div style="text-align:center; margin-bottom:20px;">
-  <button type="button" onclick="window.location.href='dashboard.jsp'">Back to Dashboard</button>
-  <button type="button" onclick="resetForm()">Reset</button>
-</div>
-
-<% if (request.getAttribute("billError") != null) { %>
-<script>window.addEventListener('DOMContentLoaded',function(){toast('<%= request.getAttribute("billError") %>','error');});</script>
-<% } %>
 </body>
 </html>
-
