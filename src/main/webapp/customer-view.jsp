@@ -10,6 +10,107 @@
   <title>Customer View</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
 </head>
+<style>
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #e0f2fe, #f0f9ff);
+  }
+
+  /* Card effect */
+  .card {
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  /* Card hover effect */
+  .card {
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .card:hover {
+    transform: translateY(-6px) scale(1.01);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Title gradient glow */
+  .page-title {
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(90deg, #1e3a8a, #3b82f6, #60a5fa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+  }
+
+  /* Table design */
+  table {
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  }
+
+  table thead {
+    background: linear-gradient(90deg, #2563eb, #1e40af);
+  }
+
+  table th {
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-size: 0.85rem;
+    padding: 0.75rem 1rem;
+  }
+
+  table tbody tr {
+    transition: all 0.3s ease;
+  }
+  table tbody tr:nth-child(even) {
+    background-color: #f9fafb;
+  }
+  table tbody tr:hover {
+    background-color: #e0f2fe;
+    transform: scale(1.01);
+  }
+
+  /* Table cells */
+  table td {
+    padding: 0.75rem 1rem;
+    text-align: center;
+    font-size: 0.95rem;
+    color: #374151;
+  }
+
+  /* Button polish */
+  .btn {
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    transition: all 0.25s ease;
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  }
+
+
+
+  /* Button animations */
+  .btn {
+    transition: all 0.25s ease;
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+</style>
+
+
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
   <div class="w-full max-w-md bg-white rounded-lg shadow p-6">
     <h1 class="text-2xl font-bold text-center text-blue-700 mb-4">Customer Details</h1>
